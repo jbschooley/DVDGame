@@ -190,25 +190,29 @@ export class Game {
     const hitBottom = this.logoY + LOGO_H > CANVAS_H;
 
     let bounced = false;
-    let bounceCorner: { dx: number; dy: number } | null = null;
+    let oldDx = this.dx;
+    let oldDy = this.dy;
 
     if (hitLeft || hitRight) {
+      oldDx = this.dx;
       this.dx *= -1;
-      bounceCorner = { dx: -this.dx, dy: this.dy };
-      this.logoX = Math.max(0, Math.min(this.logoX, CANVAS_W - LOGO_W));
       bounced = true;
     }
 
     if (hitTop || hitBottom) {
+      oldDy = this.dy;
       this.dy *= -1;
-      bounceCorner = { dx: this.dx, dy: -this.dy };
-      this.logoY = Math.max(0, Math.min(this.logoY, CANVAS_H - LOGO_H));
       bounced = true;
     }
 
-    if (bounced && bounceCorner) {
-      this.handleBounce(bounceCorner.dx, bounceCorner.dy);
+    if (bounced) {
+      // Calculate approached corner BEFORE clamping
+      this.handleBounce(oldDx, oldDy);
     }
+
+    // Clamp after scoring
+    this.logoX = Math.max(0, Math.min(this.logoX, CANVAS_W - LOGO_W));
+    this.logoY = Math.max(0, Math.min(this.logoY, CANVAS_H - LOGO_H));
 
     this.updateHUD();
   }
