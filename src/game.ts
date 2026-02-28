@@ -102,18 +102,26 @@ export class Game {
 
       switch (e.key) {
         case 'ArrowRight':
+        case 'd':
+        case 'D':
           this.dx = 1;
           e.preventDefault();
           break;
         case 'ArrowLeft':
+        case 'a':
+        case 'A':
           this.dx = -1;
           e.preventDefault();
           break;
         case 'ArrowUp':
+        case 'w':
+        case 'W':
           this.dy = -1;
           e.preventDefault();
           break;
         case 'ArrowDown':
+        case 's':
+        case 'S':
           this.dy = 1;
           e.preventDefault();
           break;
