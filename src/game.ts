@@ -233,15 +233,6 @@ export class Game {
           }
         }
       }
-    } else if (!isCurrentCornerLocked) {
-      // Even if we missed, lock this corner
-      this.lockedCorners.add(cornerKey);
-      // Unlock the previous corner
-      for (const key of this.lockedCorners) {
-        if (key !== cornerKey) {
-          this.lockedCorners.delete(key);
-        }
-      }
     }
 
     // Increase speed and cycle color
