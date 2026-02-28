@@ -1,6 +1,4 @@
 import {
-  CANVAS_W,
-  CANVAS_H,
   LOGO_W,
   LOGO_H,
   INITIAL_SPEED,
@@ -11,6 +9,9 @@ import {
   MIN_POINTS,
   COLORS
 } from './logo.js';
+
+const MAX_CANVAS_W = 900;
+const MAX_CANVAS_H = 540;
 
 export type GameStatus = 'IDLE' | 'PLAYING' | 'GAME_OVER';
 
@@ -40,12 +41,14 @@ export class Game {
   private overlayContent: HTMLElement;
   private corners: { [key: string]: HTMLElement };
 
-  private logoX = (CANVAS_W - LOGO_W) / 2;
-  private logoY = (CANVAS_H - LOGO_H) / 2;
+  private logoX = 0;
+  private logoY = 0;
   private logoColorIndex = 0;
   private dx = 1;
   private dy = 1;
   private speed = INITIAL_SPEED;
+  private canvasW = MAX_CANVAS_W;
+  private canvasH = MAX_CANVAS_H;
 
   private status: GameStatus = 'IDLE';
   private score = 0;
@@ -56,6 +59,12 @@ export class Game {
 
   private lastTime = 0;
   private animationFrameId: number | null = null;
+
+  // Touch handling
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private touchStartTime = 0;
+  private lastTapTime = 0;
 
   constructor() {
     this.canvas = document.getElementById('game') as HTMLCanvasElement;
@@ -72,11 +81,48 @@ export class Game {
       'br': document.getElementById('corner-br') as HTMLElement
     };
 
+    this.setupCanvas();
     this.loadHighScore();
     this.bindInput();
+    this.bindTouch();
     this.updateHUD();
     this.updateCornerIndicators();
     this.render();
+  }
+
+  private setupCanvas(): void {
+    const resize = () => {
+      const container = document.getElementById('game-container');
+      const wrapper = document.getElementById('game-wrapper');
+
+      const maxWidth = Math.min(MAX_CANVAS_W, window.innerWidth - 20);
+      const maxHeight = Math.min(MAX_CANVAS_H, window.innerHeight - 180);
+
+      let w = maxWidth;
+      let h = Math.floor(w * (MAX_CANVAS_H / MAX_CANVAS_W));
+
+      if (h > maxHeight) {
+        h = maxHeight;
+        w = Math.floor(h * (MAX_CANVAS_W / MAX_CANVAS_H));
+      }
+
+      this.canvasW = w;
+      this.canvasH = h;
+
+      this.canvas.width = w;
+      this.canvas.height = h;
+
+      this.logoX = (this.canvasW - LOGO_W) / 2;
+      this.logoY = (this.canvasH - LOGO_H) / 2;
+
+      if (container && wrapper) {
+        const isMobile = window.innerWidth < 768 || window.innerHeight < 600;
+        container.classList.toggle('mobile', isMobile);
+      }
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
   }
 
   private loadHighScore(): void {
@@ -127,6 +173,49 @@ export class Game {
           break;
       }
     });
+  }
+
+  private bindTouch(): void {
+    this.canvas.addEventListener('touchstart', (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      this.touchStartX = touch.clientX;
+      this.touchStartY = touch.clientY;
+      this.touchStartTime = performance.now();
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchend', (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - this.touchStartX;
+      const deltaY = touch.clientY - this.touchStartY;
+      const deltaTime = performance.now() - this.touchStartTime;
+
+      const tapThreshold = 10;
+      const swipeThreshold = 30;
+      const tapMaxTime = 200;
+
+      if (Math.abs(deltaX) < tapThreshold && Math.abs(deltaY) < tapThreshold && deltaTime < tapMaxTime) {
+        const now = performance.now();
+        if (now - this.lastTapTime > 300) {
+          if (this.status !== 'PLAYING') {
+            this.handleStartOrRestart();
+          }
+        }
+        this.lastTapTime = now;
+        return;
+      }
+
+      if (Math.abs(deltaX) > swipeThreshold || Math.abs(deltaY) > swipeThreshold) {
+        if (this.status === 'PLAYING') {
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            this.dx = deltaX > 0 ? 1 : -1;
+          } else {
+            this.dy = deltaY > 0 ? 1 : -1;
+          }
+        }
+      }
+    }, { passive: false });
   }
 
   private handleStartOrRestart(): void {
@@ -185,9 +274,9 @@ export class Game {
 
     // Check collisions
     const hitLeft = this.logoX < 0;
-    const hitRight = this.logoX + LOGO_W > CANVAS_W;
+    const hitRight = this.logoX + LOGO_W > this.canvasW;
     const hitTop = this.logoY < 0;
-    const hitBottom = this.logoY + LOGO_H > CANVAS_H;
+    const hitBottom = this.logoY + LOGO_H > this.canvasH;
 
     let bounced = false;
     let oldDx = this.dx;
@@ -211,8 +300,8 @@ export class Game {
     }
 
     // Clamp after scoring
-    this.logoX = Math.max(0, Math.min(this.logoX, CANVAS_W - LOGO_W));
-    this.logoY = Math.max(0, Math.min(this.logoY, CANVAS_H - LOGO_H));
+    this.logoX = Math.max(0, Math.min(this.logoX, this.canvasW - LOGO_W));
+    this.logoY = Math.max(0, Math.min(this.logoY, this.canvasH - LOGO_H));
 
     this.updateHUD();
   }
@@ -256,11 +345,11 @@ export class Game {
   private getCanvasCorner(dx: number, dy: number): { x: number; y: number } | null {
     switch (`${dx},${dy}`) {
       case '1,-1':
-        return { x: CANVAS_W, y: 0 };
+        return { x: this.canvasW, y: 0 };
       case '1,1':
-        return { x: CANVAS_W, y: CANVAS_H };
+        return { x: this.canvasW, y: this.canvasH };
       case '-1,1':
-        return { x: 0, y: CANVAS_H };
+        return { x: 0, y: this.canvasH };
       case '-1,-1':
         return { x: 0, y: 0 };
       default:
@@ -287,9 +376,9 @@ export class Game {
 
   private getCornerKey(x: number, y: number): string {
     if (x === 0 && y === 0) return 'tl';
-    if (x === CANVAS_W && y === 0) return 'tr';
-    if (x === 0 && y === CANVAS_H) return 'bl';
-    if (x === CANVAS_W && y === CANVAS_H) return 'br';
+    if (x === this.canvasW && y === 0) return 'tr';
+    if (x === 0 && y === this.canvasH) return 'bl';
+    if (x === this.canvasW && y === this.canvasH) return 'br';
     return '';
   }
 
@@ -343,7 +432,7 @@ export class Game {
   private render(): void {
     // Clear canvas
     this.ctx.fillStyle = '#0f0f23';
-    this.ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    this.ctx.fillRect(0, 0, this.canvasW, this.canvasH);
 
     // Draw logo
     this.ctx.fillStyle = COLORS[this.logoColorIndex];

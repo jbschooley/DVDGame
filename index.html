@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>DVD Game</title>
   <link rel="stylesheet" href="./src/style.css">
 </head>
@@ -14,7 +14,7 @@
       <div id="speed">Speed: 112</div>
     </div>
     <div id="game-wrapper">
-      <canvas id="game" width="900" height="540"></canvas>
+      <canvas id="game"></canvas>
       <div id="corner-tl" class="corner-indicator"></div>
       <div id="corner-tr" class="corner-indicator"></div>
       <div id="corner-bl" class="corner-indicator"></div>
@@ -22,10 +22,11 @@
       <div id="overlay">
         <div id="overlay-content">
           <h1>DVD Game</h1>
-          <p>Press Space or Enter to start</p>
+          <p>Press Space/Enter or tap to start</p>
         </div>
       </div>
     </div>
+    <div id="mobile-hint">Swipe to change direction</div>
   </div>
   <script type="module" src="./src/main.ts"></script>
 </body>
