@@ -110,6 +110,10 @@ export class Game {
     this.timeRemaining = 60;
     this.lockedCorner = null;
     this.popups = [];
+    
+    // Reset logo speed to initial value based on current canvas width
+    this.logo.speed = this.canvas.width / 8;
+    
     this.updateHUD();
     this.overlay.style.opacity = '0';
     this.overlay.style.pointerEvents = 'none';
