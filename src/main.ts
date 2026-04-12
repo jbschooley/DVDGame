@@ -43,11 +43,14 @@ window.addEventListener('keydown', (e) => {
 }, { passive: false });
 
 // Mouse/Touch Input to start
-window.addEventListener('mousedown', () => {
+const handleStart = (e: Event) => {
   if (game.state !== GameState.PLAYING) {
     game.start();
   }
-});
+};
+
+window.addEventListener('mousedown', handleStart);
+window.addEventListener('touchstart', handleStart, { passive: false });
 
 // Swipe Input
 hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
