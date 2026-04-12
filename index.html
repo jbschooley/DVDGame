@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>DVD Game</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="hud">
+        <div id="score">Score: 0</div>
+        <div id="timer">0:60</div>
+        <div id="speed">Speed: 0</div>
+      </div>
+      <canvas id="game"></canvas>
+      <div id="overlay" class="overlay">
+        <div id="overlay-content">
+          <h1 id="overlay-title">DVD BOUNCE</h1>
+          <p id="overlay-message">Press Space or Enter to Start</p>
+          <div id="final-score-container" style="display: none;">
+            <p>Final Score: <span id="final-score">0</span></p>
+            <p>High Score: <span id="high-score">0</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
