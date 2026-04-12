@@ -34,19 +34,19 @@ DvdGame/
 
 ## Canvas & Layout
 
-- **Canvas element**: `<canvas id="game">` rendered with a fixed aspect ratio (e.g. 900×540, roughly 5:3)
-- Centered on the page with a dark background
-- HUD above/below the canvas: Score (left), Time remaining (center), Speed (right)
-- Four corner indicators (small squares in each canvas corner) that highlight red when that corner is "locked out"
+- **Canvas element**: `<canvas id="game">` responsive, filling the entire browser window.
+- Dark background.
+- HUD overlaid on the canvas: Score (left), Time remaining (center), Speed (right).
+- Four corner indicators (small squares in each canvas corner) drawn directly on the canvas; they highlight red when that corner is "locked out".
 
 ---
 
 ## DVD Logo
 
-- Drawn on the 2D canvas context (no DOM element for the logo itself)
-- Dimensions: **150×75 px** (2:1 ratio, mimicking the real logo's proportions)
-- Rendered as a filled rounded rectangle with "DVD" text or a simplified logo shape
-- **Color**: cycles through a palette of ~8 colors each time it bounces off an edge (classic screensaver behavior)
+- Drawn on the 2D canvas context (no DOM element for the logo itself).
+- Dimensions: **150×75 px** (2:1 ratio, mimicking the real logo's proportions).
+- Rendered procedurally as a filled rounded rectangle with "DVD" text (bold, sans-serif, italicized, and centered).
+- **Color**: cycles through a palette of ~8 colors each time it bounces off an edge (classic screensaver behavior).
 
 ---
 
@@ -67,7 +67,7 @@ Direction is stored as `{ dx: ±1, dy: ±1 }` — always perfectly diagonal.
 
 - **Initial speed**: `canvasWidth / 8` px/s so the logo crosses the canvas in ~8 s (≈112 px/s for a 900px canvas)
 - Speed is a scalar applied equally to both axes (dx and dy), preserving perfect diagonality
-- **Speed increase**: +10 px/s each time the logo bounces off any edge (wall or corner)
+- **Speed increase**: +10 px/s each time the logo bounces off any edge (wall or corner). On canvas resize, current speed and speed increment are scaled proportionally to the new canvas size.
 
 ### Update each frame (game loop)
 
@@ -80,23 +80,23 @@ Then clamp and bounce (see Collision below).
 
 ---
 
-## Arrow Key Controls
+## Controls
 
-Arrow keys change only one component of direction, keeping movement diagonal:
+Movement is controlled by changing one component of direction, keeping movement diagonal:
 
-| Key | Effect |
+| Key/Gesture | Effect |
 |---|---|
-| Right (`→`) | `dx = +1` |
-| Left (`←`) | `dx = -1` |
-| Up (`↑`) | `dy = -1` |
-| Down (`↓`) | `dy = +1` |
+| Right (`→` / `D` / Swipe Right) | `dx = +1` |
+| Left (`←` / `A` / Swipe Left) | `dx = -1` |
+| Up (`↑` / `W` / Swipe Up) | `dy = -1` |
+| Down (`↓` / `S` / Swipe Down) | `dy = +1` |
 
 Examples:
 - Moving NW, press Right → NE
 - Moving NE, press Down → SE
 - Moving SW, press Up → NW
 
-Prevent default browser scroll behavior on arrow keys.
+Prevent default browser scroll behavior on arrow keys and WASD. Implement touch listeners for swipe detection using a lightweight library.
 
 ---
 
@@ -165,8 +165,7 @@ At d=50: `1 + 0 = 1` ✓
 
 ### Corner lockout
 
-- When a corner earns points (distance ≤ 50), mark that corner as **locked** (highlighted red on canvas and in corner indicators)
-- A locked corner earns **0 points** until any *other* corner is hit (distance ≤ 50)
+- When a corner earns points (distance ≤ 50), mark that corner as **locked** (highlighted red on canvas and in corner indicators). A locked corner continues to earn 0 points until a different corner is hit.
 - Hitting a different corner clears the lock on the previous corner and locks the new one
 
 ---
@@ -204,11 +203,11 @@ Drawn as styled HTML elements overlaid on the canvas container (not on the canva
 
 ## Visual Polish
 
-- **Corner indicators**: Four small squares (10×10 px) at the actual canvas corners, colored green normally, red when locked
-- **Score popup**: When points are earned, briefly show `+N` floating near the canvas corner (CSS animation)
-- **Color palette**: Logo cycles through `[#FF6B6B, #FFD93D, #6BCB77, #4D96FF, #C77DFF, #FF9F1C, #00B4D8, #FFFFFF]`
-- **Speed display**: Shows current px/s in HUD so the player can see acceleration
-- **Game over screen**: Shows final score, high score (stored in `localStorage`), restart prompt
+- **Corner indicators**: Four small squares (10×10 px) drawn at the actual canvas corners, colored green normally, red when locked.
+- **Score popup**: When points are earned, briefly draw `+N` floating near the canvas corner using a canvas-based fade/float animation.
+- **Color palette**: Logo cycles through `[#FF6B6B, #FFD93D, #6BCB77, #4D96FF, #C77DFF, #FF9F1C, #00B4D8, #FFFFFF]`.
+- **Speed display**: Shows current px/s in HUD so the player can see acceleration.
+- **Game over screen**: Shows final score, high score (stored in `localStorage`), restart prompt.
 
 ---
 
@@ -229,14 +228,12 @@ Drawn as styled HTML elements overlaid on the canvas container (not on the canva
 ## Key Constants (tunable)
 
 ```typescript
-const CANVAS_W = 900;
-const CANVAS_H = 540;
 const LOGO_W = 150;
 const LOGO_H = 75;
-const INITIAL_SPEED = CANVAS_W / 8;  // ~112 px/s
+const INITIAL_SPEED = 112;           // px/s (based on original 900px width)
 const SPEED_INCREMENT = 10;          // px/s per edge hit
 const GAME_DURATION = 60;            // seconds
-const CORNER_THRESHOLD = 50;        // px — max distance for points
+const CORNER_THRESHOLD = 50;         // px — max distance for points
 const MAX_POINTS = 200;
 const MIN_POINTS = 1;
 ```
