@@ -1,0 +1,117 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1a1a2e;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+#hud-score {
+  color: #6BCB77;
+}
+
+#hud-timer {
+  color: #FFD93D;
+  font-size: 22px;
+}
+
+#hud-speed {
+  color: #4D96FF;
+}
+
+#game {
+  display: block;
+  width: 100vw;
+  height: calc(100vh - 44px);
+  background: #0f0f1a;
+  touch-action: none;
+}
+
+#game-container:has(#overlay.active) #game {
+  pointer-events: none;
+}
+
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+#overlay.active {
+  display: flex;
+  pointer-events: auto;
+}
+
+#overlay-content {
+  text-align: center;
+  color: #ffffff;
+}
+
+#overlay-content h1 {
+  font-size: 48px;
+  margin-bottom: 16px;
+  text-shadow: 0 0 20px rgba(107, 203, 119, 0.8);
+}
+
+#overlay-content p {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+#overlay-content .instructions {
+  font-size: 14px;
+  color: #aaa;
+}
+
+#overlay-content .final-score {
+  font-size: 32px;
+  color: #FFD93D;
+  margin: 16px 0;
+}
+
+#overlay-content .high-score {
+  font-size: 18px;
+  color: #C77DFF;
+  margin-bottom: 16px;
+}
