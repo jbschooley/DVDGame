@@ -230,10 +230,21 @@ Drawn as styled HTML elements overlaid on the canvas container (not on the canva
 ```typescript
 const LOGO_W = 150;
 const LOGO_H = 75;
-const INITIAL_SPEED = 112;           // px/s (based on original 900px width)
-const SPEED_INCREMENT = 10;          // px/s per edge hit
+const INITIAL_SPEED = canvasWidth / 8; // px/s — dynamically calculated at load time
+const SPEED_INCREMENT = INITIAL_SPEED / 11.2; // px/s per edge hit (~10 for 900px width)
 const GAME_DURATION = 60;            // seconds
 const CORNER_THRESHOLD = 50;         // px — max distance for points
 const MAX_POINTS = 200;
 const MIN_POINTS = 1;
 ```
+
+---
+
+## Clarifications (2026-04-16)
+
+1. **Touch/swipe library**: Use [Hammer.js](https://hammerjs.github.io/) for swipe detection (add as a dependency).
+2. **Initial speed**: Dynamically calculated as `canvasWidth / 8` at load time (larger screens = faster logo).
+3. **Speed increment scaling**: On canvas resize, **both** the current speed AND the speed increment scale proportionally to the new canvas size.
+4. **Score popup on 0-point hits**: Show the `+0` popup when a corner hit earns 0 points (distance > 50).
+5. **Corner lockout on re-hit**: When the player hits an already-locked corner again, just bounce and award 0 points — no additional behavior.
+6. **High score**: Single global high score stored in `localStorage` (key: `dvdGameHighScore`).
